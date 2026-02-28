@@ -1,0 +1,121 @@
+/* Root & global settings */
+:root {
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: light dark;
+  color: rgba(255, 255, 255, 0.87);
+  background-color: #1e3a8a; /* Blue background */
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Links */
+a {
+  font-weight: 500;
+  color: #ffd700; /* Yellowish link for contrast */
+  text-decoration: none;
+  transition: color 0.25s;
+}
+a:hover {
+  color: #ffea00;
+}
+
+/* Body layout */
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background-color: var(--bg-color, #1e3a8a);
+  color: var(--text-color, rgba(255,255,255,0.87));
+}
+
+/* Headings */
+h1, h2 {
+  font-weight: 700;
+  text-align: center;
+  margin: 1rem 0;
+}
+
+h1 {
+  font-size: 3.2em;
+  line-height: 1.1;
+}
+
+h2 {
+  font-size: 2em;
+  color: #065040;
+}
+
+/* Buttons */
+button {
+  border-radius: 8px;
+  border: 1px solid transparent;
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  background-color: #2563eb; /* Blue button */
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+button:hover {
+  border-color: #ffd700;
+  transform: translateY(-2px);
+}
+button:focus,
+button:focus-visible {
+  outline: 4px auto -webkit-focus-ring-color;
+}
+
+/* Center content container for dashboard/cards */
+.center-container {
+  width: 100%;
+  padding: 2rem;
+}
+
+/* Card grid */
+
+
+/* Individual card */
+.card {
+  background-color: #3b82f6; /* Blue shade for cards */
+  color: #fff;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  transition: transform 0.2s, box-shadow 0.2s;
+  cursor: pointer;
+}
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+}
+
+/* Light theme support */
+@media (prefers-color-scheme: light) {
+  :root {
+    --text-color: #213547;
+    --bg-color: #dbeafe; /* Light blue background */
+  }
+
+  a:hover {
+    color: #1e40af;
+  }
+
+  button {
+    background-color: #3b82f6;
+    color: #fff;
+  }
+
+  .card {
+    background-color: #60a5fa;
+    color: #213547;
+  }
+}
+
