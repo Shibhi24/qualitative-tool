@@ -1,0 +1,168 @@
+/* =========================
+   RESET
+========================= */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* =========================
+   DASHBOARD LAYOUT
+========================= */
+.dashboard {
+  width: 100%;
+  min-height: 100vh;
+  padding: 60px 80px;  /* increase horizontal space */
+  background: #f1f5f9;
+  display: flex;
+  flex-direction: column;
+}
+
+/* =========================
+   HEADING
+========================= */
+.dashboard h2 {
+  font-size: 2.4rem;
+  font-weight: 700;
+  color: #1e293b; /* slate */
+  margin-bottom: 40px;
+  text-align: center;
+}
+
+/* =========================
+   CARD GRID
+========================= */
+.card-grid {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 24px;
+}
+
+/* =========================
+   CARD DESIGN (EDITOR THEME)
+========================= */
+.card-grid .card {
+  background: #0f172a; /* navbar navy */
+  color: #ffffff;
+  padding: 20px;
+  border-radius: 14px;
+  font-size: 1rem;
+  font-weight: 600;
+  text-align: center;
+  cursor: pointer;
+
+  min-height: 100px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.25);
+  transition: all 0.25s ease;
+}
+
+.card-grid .card:hover {
+  background: #2563eb; /* primary blue */
+  transform: translateY(-4px);
+  box-shadow: 0 12px 28px rgba(37, 99, 235, 0.35);
+}
+
+/* =========================
+   DROPDOWN SECTION
+========================= */
+.recent-projects-dropdown {
+  margin-top: 30px;
+  width: 100%;
+  max-width: 1000px;
+  background: #ffffff;
+  padding: 24px;
+  border-radius: 14px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+}
+
+/* =========================
+   SEARCH INPUT
+========================= */
+.search-input {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+  margin-bottom: 18px;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.search-input:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+  outline: none;
+}
+
+/* =========================
+   PROJECT ITEM
+========================= */
+.project-item {
+  padding: 16px;
+  border-radius: 10px;
+  cursor: pointer;
+  margin-bottom: 12px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  transition: all 0.2s ease;
+}
+
+.project-item:hover {
+  background: #e2e8f0;
+  border-color: #2563eb;
+}
+
+.project-item strong {
+  color: #1e293b;
+}
+
+.project-item p {
+  margin-top: 6px;
+  font-size: 13px;
+  color: #64748b;
+}
+
+.no-project {
+  color: #64748b;
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+@media (max-width: 768px) {
+
+  .dashboard {
+    padding: 40px 20px;
+  }
+
+  .dashboard h2 {
+    font-size: 1.8rem;
+    margin-bottom: 30px;
+  }
+
+  .card-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .card-grid .card {
+    min-height: 80px;
+    padding: 16px;
+  }
+
+  .recent-projects-dropdown {
+    padding: 18px;
+  }
+
+  .project-item {
+    padding: 14px;
+  }
+}

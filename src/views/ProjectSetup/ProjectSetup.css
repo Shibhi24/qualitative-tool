@@ -1,0 +1,239 @@
+/* ============================= */
+/* GLOBAL PAGE CONTAINER */
+/* ============================= */
+
+.project-setup-container {
+  min-height: 100vh;
+  background: #f1f5f9;
+  padding: 80px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-family: "Inter", "Segoe UI", sans-serif;
+}
+
+/* ============================= */
+/* PROJECT TITLE */
+/* ============================= */
+
+.project-title {
+  width: 100%;
+  max-width: 1500px;   /* increased */
+  padding: 20px 28px;
+  font-size: 1.3rem;
+  font-weight: 600;
+  border-radius: 14px;
+  border: 1px solid #cbd5e1;
+  margin-bottom: 40px;
+  background: #ffffff;
+  color: #1e293b;
+  transition: 0.25s ease;
+}
+
+.project-title:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
+  outline: none;
+}
+
+/* ============================= */
+/* MAIN FORM LAYOUT (VERTICAL) */
+/* ============================= */
+
+.project-box {
+  width: 100%;
+  max-width: 1150px;
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 60px;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  border: 1px solid #e2e8f0;
+  box-shadow:
+    0 20px 45px rgba(15, 23, 42, 0.08),
+    0 8px 20px rgba(15, 23, 42, 0.05);
+}
+
+/* ============================= */
+/* INPUT SECTIONS */
+/* ============================= */
+
+.input-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+
+.input-section label {
+  font-weight: 600;
+  color: #1e293b;
+}
+
+/* ============================= */
+/* TEXTAREA */
+/* ============================= */
+
+.text-input {
+  width: 100%;
+  min-height: 220px; /* bigger paste box */
+  padding: 16px;
+  border-radius: 12px;
+  border: 1px solid #cbd5e1;
+  resize: vertical;
+  background: #f8fafc;
+  transition: 0.25s ease;
+  font-size: 0.95rem;
+}
+
+.text-input:focus {
+  background: #ffffff;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+  outline: none;
+}
+
+/* ============================= */
+/* FILE BUTTON */
+/* ============================= */
+
+.file-input-hidden {
+  display: none;
+}
+
+.file-upload-wrapper {
+  display: flex;
+  justify-content: center; /* Centers horizontally */
+  align-items: center;     /* Centers vertically */
+  flex-direction: column;
+  width: 100%;
+  padding: 20px;
+}
+
+.custom-file-button {
+  padding: 14px 28px;
+  background: #243864;
+  
+  /* FORCE WHITE COLOR BY DEFAULT */
+  color: #ffffff !important; 
+  
+  font-size: 0.95rem;
+  font-weight: 600;
+  border-radius: 10px;
+  cursor: pointer;
+  border: none;
+  transition: all 0.25s ease;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.25);
+  
+  /* Ensure it behaves like a block for centering */
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  text-decoration: none; /* Removes underline if using an <a> tag */
+}
+
+.custom-file-button:hover {
+  background: #2563eb;
+  color: #ffffff !important; /* Keep it white on hover */
+  transform: translateY(-2px);
+}
+
+.file-name {
+  margin-top: 12px;
+  font-size: 0.9rem;
+  color: #c0d3ee;
+  text-align: center; /* Center the filename text below the button */
+}
+/* ============================= */
+/* LANGUAGE SECTION */
+/* ============================= */
+
+.language-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 20px;
+  border-top: 1px solid #e2e8f0;
+  font-weight: 600;
+}
+
+.language-section select {
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid #cbd5e1;
+  background: #f8fafc;
+}
+
+/* ============================= */
+/* CREATE BUTTON */
+/* ============================= */
+
+.create-project-button {
+  width: 100%;
+  padding: 16px;
+  border-radius: 12px;
+  border: none;
+  background: #0f172a;
+  color: #ffffff;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.25s ease;
+  font-size: 1rem;
+}
+
+.create-project-button:hover {
+  background: #2563eb;
+  transform: translateY(-2px);
+}
+
+/* ============================= */
+/* RESPONSIVE */
+/* ============================= */
+
+@media (max-width: 900px) {
+
+  .project-setup-container {
+    padding: 50px 15px;
+  }
+
+  .project-box {
+    padding: 30px;
+  }
+
+  .language-section {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+}
+
+@media (max-width: 600px) {
+
+  .project-title {
+    font-size: 1rem;
+    padding: 14px 16px;
+  }
+
+  .project-box {
+    padding: 20px;
+    border-radius: 14px;
+  }
+
+  .text-input {
+    min-height: 160px;
+    font-size: 0.9rem;
+  }
+
+  .custom-file-button {
+    width: 100%;
+  }
+
+  .language-section select {
+    width: 100%;
+  }
+
+  .create-project-button {
+    padding: 14px;
+  }
+}
