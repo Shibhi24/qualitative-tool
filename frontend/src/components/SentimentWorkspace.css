@@ -1,0 +1,922 @@
+/* ===============================
+   SentimentWorkspace — Enhanced Styles
+   Navigation, Preview, Table View, Lexicon, Reports
+================================= */
+
+.sentiment-workspace {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+    overflow: hidden;
+}
+
+/* ===============================
+   Sentiment Viewer Container (v2)
+   =============================== */
+.sentiment-viewer-container {
+    display: flex;
+    position: relative;
+    flex: 1;
+    overflow: hidden;
+}
+
+/* --- Sentiment Mini-map --- */
+.sentiment-minimap {
+    width: 14px;
+    background: rgba(0, 0, 0, 0.03);
+    position: relative;
+    height: 100%;
+    cursor: crosshair;
+    border-left: 1px solid rgba(0, 0, 0, 0.05);
+    flex-shrink: 0;
+}
+
+.minimap-indicator {
+    position: absolute;
+    width: 100%;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.minimap-indicator:hover {
+    transform: scaleX(1.8);
+    z-index: 10;
+    box-shadow: 0 0 4px rgba(0, 0, 0, 0.2);
+}
+
+/* ===============================
+   Internal Navigation
+================================= */
+
+.sentiment-internal-nav {
+    background: #ffffff;
+    padding: 0 20px;
+    display: flex;
+    gap: 20px;
+    border-bottom: 1px solid #e2e8f0;
+    flex-shrink: 0;
+}
+
+.sub-nav-btn {
+    padding: 12px 4px;
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: #64748b;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.sub-nav-btn:hover {
+    color: #334155;
+}
+
+.sub-nav-btn.active {
+    color: #2563eb;
+    border-bottom-color: #2563eb;
+}
+
+/* ===============================
+   Preview Header
+================================= */
+
+.sentiment-preview-header {
+    padding: 12px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-shrink: 0;
+    background: #f8fafc;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.preview-stats {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.stat-pill {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: white;
+    letter-spacing: 0.3px;
+}
+
+.stat-pill.positive {
+    background: #22c55e;
+}
+
+.stat-pill.neutral {
+    background: #64748b;
+}
+
+.stat-pill.negative {
+    background: #ef4444;
+}
+
+.total-count {
+    font-size: 0.8rem;
+    color: #64748b;
+    font-weight: 500;
+    margin-left: 4px;
+    padding: 4px 10px;
+    background: #f1f5f9;
+    border-radius: 12px;
+}
+
+.preview-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+/* View Toggle (Document / Table) */
+.view-toggle {
+    display: flex;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.toggle-btn {
+    padding: 5px 10px;
+    background: #ffffff;
+    border: none;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.15s ease;
+    line-height: 1;
+}
+
+.toggle-btn:first-child {
+    border-right: 1px solid #e2e8f0;
+}
+
+.toggle-btn:hover {
+    background: #f1f5f9;
+}
+
+.toggle-btn.active {
+    background: #2563eb;
+    filter: grayscale(0);
+}
+
+/* Finalize Button */
+.finalize-btn {
+    padding: 7px 14px;
+    background: #2563eb;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-weight: 500;
+    font-size: 0.82rem;
+    cursor: pointer;
+    transition: background 0.2s ease, opacity 0.2s ease;
+}
+
+.finalize-btn:hover {
+    background: #1d4ed8;
+}
+
+.finalize-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* ===============================
+   Document Highlighting (Highlight View)
+================================= */
+
+.sentiment-content-area {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+    cursor: text;
+}
+
+.sentiment-document-card {
+    background: white;
+    padding: 40px;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    line-height: 1.8;
+    font-size: 0.95rem;
+    color: #1e293b;
+    transition: box-shadow 0.2s ease;
+    max-width: 850px;
+    margin: 0 auto;
+}
+
+.sentiment-document-card:hover {
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
+}
+
+.sentiment-highlight {
+    padding: 2px 2px;
+    border-radius: 2px;
+    position: relative;
+    cursor: help;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.05);
+}
+
+.sentiment-highlight:hover {
+    filter: brightness(1.1);
+    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.sentiment-label {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    background: rgba(0, 0, 0, 0.25);
+    padding: 1px 4px;
+    border-radius: 3px;
+    margin-left: 5px;
+    vertical-align: middle;
+    letter-spacing: 0.4px;
+    user-select: none;
+    pointer-events: none;
+}
+
+.sentiment-source-badge {
+    font-size: 0.55rem;
+    font-weight: 700;
+    background: rgba(255, 255, 255, 0.3);
+    color: #fff;
+    padding: 1px 4px;
+    border-radius: 3px;
+    margin-left: 3px;
+    vertical-align: middle;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+}
+
+/* ===============================
+   Sentence-Level Table View
+================================= */
+
+.sentiment-table-area {
+    flex: 1;
+    padding: 16px 20px;
+    overflow-y: auto;
+}
+
+.sentiment-results-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.82rem;
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.sentiment-results-table thead {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+}
+
+.sentiment-results-table th {
+    background: #1e293b;
+    color: #e2e8f0;
+    padding: 10px 12px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+}
+
+.sentiment-results-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid #f1f5f9;
+    vertical-align: top;
+}
+
+.sentiment-results-table tr:hover td {
+    background: #f8fafc;
+}
+
+.segment-cell {
+    max-width: 350px;
+}
+
+.segment-text {
+    color: #334155;
+    line-height: 1.5;
+    font-size: 0.82rem;
+}
+
+.sentiment-cell {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+}
+
+.sentiment-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.dot-vpos {
+    background: #166534;
+}
+
+.dot-pos {
+    background: #22c55e;
+}
+
+.dot-neu {
+    background: #64748b;
+}
+
+.dot-neg {
+    background: #f87171;
+}
+
+.dot-vneg {
+    background: #b91c1c;
+}
+
+.sentiment-cell-label {
+    font-weight: 500;
+    color: #334155;
+    font-size: 0.78rem;
+}
+
+.count-cell {
+    text-align: center;
+    font-weight: 600;
+    font-size: 0.8rem;
+    color: #475569;
+}
+
+.pos-count {
+    color: #16a34a;
+}
+
+.neg-count {
+    color: #dc2626;
+}
+
+.diff-count.positive {
+    color: #16a34a;
+    font-weight: 700;
+}
+
+.diff-count.negative {
+    color: #dc2626;
+    font-weight: 700;
+}
+
+.source-cell {
+    white-space: nowrap;
+}
+
+.source-tag {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.source-tag.auto {
+    background: #e0e7ff;
+    color: #3730a3;
+}
+
+.source-tag.manual {
+    background: #dcfce7;
+    color: #166534;
+}
+
+/* ===============================
+   Lexicon Tab — Review Table
+================================= */
+
+.lexicon-container {
+    padding: 20px;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.lexicon-review-table {
+    margin-top: 20px;
+    background: white;
+    border-radius: 8px;
+    padding: 16px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.review-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.review-header h4 {
+    margin: 0;
+    font-size: 0.95rem;
+    color: #1e293b;
+}
+
+.batch-apply-btn {
+    padding: 6px 14px;
+    background: #22c55e;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.batch-apply-btn:hover {
+    background: #16a34a;
+    transform: translateY(-1px);
+}
+
+.lexicon-review-table table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+}
+
+.lexicon-review-table th,
+.lexicon-review-table td {
+    padding: 10px 12px;
+    text-align: left;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.lexicon-review-table th {
+    background: #f8fafc;
+    font-weight: 600;
+    color: #475569;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.lexicon-review-table tr:hover {
+    background: #f8fafc;
+}
+
+.category-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: capitalize;
+}
+
+.category-badge.positive {
+    background: rgba(34, 197, 94, 0.15);
+    color: #16a34a;
+}
+
+.category-badge.negative {
+    background: rgba(239, 68, 68, 0.15);
+    color: #dc2626;
+}
+
+.context-cell {
+    color: #64748b;
+    font-style: italic;
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.mini-btn {
+    padding: 4px 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.78rem;
+    font-weight: 500;
+    margin-right: 4px;
+    transition: all 0.15s ease;
+}
+
+.mini-btn.apply {
+    background: rgba(34, 197, 94, 0.15);
+    color: #16a34a;
+}
+
+.mini-btn.apply:hover {
+    background: #22c55e;
+    color: white;
+}
+
+.mini-btn.del {
+    background: rgba(239, 68, 68, 0.1);
+    color: #dc2626;
+}
+
+.mini-btn.del:hover {
+    background: #ef4444;
+    color: white;
+}
+
+/* ===============================
+   Reports & Charts
+================================= */
+
+.reports-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+.report-card {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    transition: box-shadow 0.2s ease;
+}
+
+.report-card:hover {
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
+}
+
+.report-card-full {
+    grid-column: 1 / -1;
+}
+
+.report-card h3 {
+    margin: 0 0 16px 0;
+    font-size: 0.95rem;
+    color: #1e293b;
+}
+
+.no-data-msg {
+    color: #94a3b8;
+    font-size: 0.85rem;
+    font-style: italic;
+    text-align: center;
+    padding: 20px 0;
+}
+
+.bar-row {
+    margin-bottom: 15px;
+}
+
+.bar-label-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+}
+
+.bar-label-row span {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #334155;
+}
+
+.bar-value {
+    font-size: 0.78rem !important;
+    color: #64748b !important;
+    font-weight: 600 !important;
+}
+
+.bar-bg {
+    height: 14px;
+    background: #e2e8f0;
+    border-radius: 7px;
+    overflow: hidden;
+}
+
+.bar-fill {
+    height: 100%;
+    border-radius: 7px;
+    transition: width 0.5s ease-in-out;
+    position: relative;
+}
+
+.bar-fill.pos {
+    background: linear-gradient(90deg, #22c55e, #16a34a);
+}
+
+.bar-fill.neu {
+    background: linear-gradient(90deg, #94a3b8, #64748b);
+}
+
+.bar-fill.neg {
+    background: linear-gradient(90deg, #f87171, #dc2626);
+}
+
+/* ===============================
+   Lexicon Dashboard (v2)
+================================= */
+
+.lexicon-dashboard {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 24px;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.02);
+}
+
+.dashboard-header {
+    margin-bottom: 20px;
+}
+
+.dashboard-header h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    color: #1e293b;
+    font-weight: 700;
+}
+
+.dashboard-header p {
+    margin: 4px 0 0 0;
+    font-size: 0.85rem;
+    color: #64748b;
+}
+
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr 1fr;
+    gap: 16px;
+}
+
+.dashboard-card {
+    background: white;
+    padding: 16px;
+    border-radius: 10px;
+    border: 1px solid #e2e8f0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.card-label {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    font-weight: 700;
+    color: #94a3b8;
+    letter-spacing: 0.05em;
+    margin-bottom: 12px;
+}
+
+/* Stat Card */
+.stat-main {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 12px;
+}
+
+.stat-label {
+    font-size: 0.75rem;
+    color: #64748b;
+    font-weight: 500;
+}
+
+.stat-number {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: #1e293b;
+    line-height: 1.2;
+}
+
+.stat-distribution {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 10px;
+}
+
+.dist-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #475569;
+}
+
+.dist-item .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+}
+
+.dist-item .dot.pos { background: #22c55e; }
+.dist-item .dot.neg { background: #ef4444; }
+
+.mini-progress {
+    height: 6px;
+    background: #f1f5f9;
+    border-radius: 3px;
+    display: flex;
+    overflow: hidden;
+}
+
+.mini-progress .fill { height: 100%; transition: width 0.4s ease; }
+.mini-progress .fill.pos { background: #22c55e; }
+.mini-progress .fill.neg { background: #ef4444; }
+
+/* Freq Card */
+.freq-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.freq-item {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8rem;
+    padding-bottom: 4px;
+    border-bottom: 1px solid #f8fafc;
+}
+
+.freq-word {
+    color: #334155;
+    font-weight: 500;
+}
+
+.freq-count {
+    color: #2563eb;
+    font-weight: 700;
+    background: rgba(37, 99, 235, 0.08);
+    padding: 0 6px;
+    border-radius: 4px;
+}
+
+/* Insight Card */
+.bias-meter {
+    height: 10px;
+    background: linear-gradient(90deg, #ef4444, #f1f5f9 50%, #22c55e);
+    border-radius: 5px;
+    position: relative;
+    margin: 20px 0 10px 0;
+}
+
+.bias-marker {
+    position: absolute;
+    width: 4px;
+    height: 18px;
+    background: #1e293b;
+    top: -4px;
+    border-radius: 2px;
+    box-shadow: 0 0 0 2px white;
+    transition: left 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.bias-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #94a3b8;
+}
+
+/* ===============================
+   Breakdown Table
+================================= */
+
+.breakdown-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+}
+
+.breakdown-table th {
+    background: #f8fafc;
+    padding: 8px 12px;
+    text-align: left;
+    font-weight: 600;
+    color: #475569;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.breakdown-table td {
+    padding: 8px 12px;
+    border-bottom: 1px solid #f1f5f9;
+    color: #334155;
+}
+
+.breakdown-table tr:hover td {
+    background: #f8fafc;
+}
+
+.breakdown-label-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-right: 8px;
+    vertical-align: middle;
+}
+
+.score-pos {
+    color: #16a34a;
+    font-weight: 600;
+}
+
+.score-neg {
+    color: #dc2626;
+    font-weight: 600;
+}
+
+/* ===============================
+   Crosstab Table
+================================= */
+
+.crosstab-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    font-size: 0.85rem;
+}
+
+.crosstab-table th,
+.crosstab-table td {
+    padding: 10px 12px;
+    border: 1px solid #e2e8f0;
+    text-align: left;
+}
+
+.crosstab-table th {
+    background: #f8fafc;
+    font-weight: 600;
+    color: #334155;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+}
+
+.crosstab-table tr:nth-child(even) {
+    background: #f9fafb;
+}
+
+.ct-pos {
+    color: #16a34a;
+    font-weight: 600;
+}
+
+.ct-neu {
+    color: #64748b;
+    font-weight: 500;
+}
+
+.ct-neg {
+    color: #dc2626;
+    font-weight: 600;
+}
+
+/* ===============================
+   Responsive
+================================= */
+
+@media (max-width: 1024px) {
+    .reports-container {
+        grid-template-columns: 1fr;
+    }
+
+    .sentiment-document-card {
+        padding: 25px;
+    }
+
+    .sentiment-results-table th,
+    .sentiment-results-table td {
+        padding: 8px;
+    }
+
+    .segment-cell {
+        max-width: 200px;
+    }
+
+    .preview-stats {
+        flex-wrap: wrap;
+    }
+}
