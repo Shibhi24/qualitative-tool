@@ -23,13 +23,13 @@ function ExportWorkspace({ projectId }) {
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement("a");
       link.href = url;
-      
+
       const filenames = {
         excel: "Project_Report.xlsx",
         html: "Project_Summary.html",
         text: "Project_FullText.txt",
       };
-      
+
       link.setAttribute("download", filenames[format]);
       document.body.appendChild(link);
       link.click();
@@ -48,7 +48,7 @@ function ExportWorkspace({ projectId }) {
       id: "excel",
       title: "Full Excel Report",
       icon: "📊",
-      desc: "Comprehensive multi-sheet report containing segments, codes, memos, and extracted entities.",
+      desc: "Comprehensive multi-sheet report with segments, codes, memos, entities, sentiment stats, and thematic crosstabs.",
       color: "#166534"
     },
     {
@@ -82,7 +82,7 @@ function ExportWorkspace({ projectId }) {
               <h3>{opt.title}</h3>
               <p>{opt.desc}</p>
             </div>
-            <button 
+            <button
               className="export-btn"
               style={{ backgroundColor: opt.color }}
               onClick={() => handleDownload(opt.id)}

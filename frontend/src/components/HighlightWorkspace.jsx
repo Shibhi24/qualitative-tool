@@ -39,6 +39,7 @@ function HighlightWorkspace({
     type: "main",
     parentId: "",
     color: "#3b82f6",
+    description: "",
   });
   const [isSaving, setIsSaving] = useState(false);
   const editableRef = useRef(null);
@@ -123,6 +124,7 @@ function HighlightWorkspace({
         project_id: projectId,
         parent_id: parentValue,
         color: formData.color,
+        description: formData.description,
       });
       const newCode = codeRes.data;
 
@@ -162,7 +164,7 @@ function HighlightWorkspace({
       await axios.put(`http://127.0.0.1:8000/documents/${documentId}`, { content: updatedHTML });
 
       setTooltip(null);
-      setFormData({ ...formData, name: "" });
+      setFormData({ ...formData, name: "", description: "" });
       window.getSelection().removeAllRanges();
       if (reloadCodes) reloadCodes(true);
 
@@ -247,6 +249,14 @@ function HighlightWorkspace({
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               autoFocus
+            />
+
+            <textarea
+              className="code-description-input"
+              placeholder="Code Description/Memo..."
+              value={formData.description}
+              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              rows="2"
             />
 
             <div className="color-picker">

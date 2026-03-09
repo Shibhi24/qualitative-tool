@@ -53,11 +53,11 @@
 ================================= */
 
 .sentiment-internal-nav {
-    background: #ffffff;
+    background: #0f172a;
     padding: 0 20px;
     display: flex;
     gap: 20px;
-    border-bottom: 1px solid #e2e8f0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     flex-shrink: 0;
 }
 
@@ -66,19 +66,19 @@
     background: none;
     border: none;
     border-bottom: 2px solid transparent;
-    color: #64748b;
+    color: #cbd5e1;
     cursor: pointer;
     font-weight: 500;
     transition: all 0.2s ease;
 }
 
 .sub-nav-btn:hover {
-    color: #334155;
+    color: #3b82f6;
 }
 
 .sub-nav-btn.active {
-    color: #2563eb;
-    border-bottom-color: #2563eb;
+    color: #ffffff;
+    border-bottom-color: #3b82f6;
 }
 
 /* ===============================
@@ -726,8 +726,13 @@
     border-radius: 50%;
 }
 
-.dist-item .dot.pos { background: #22c55e; }
-.dist-item .dot.neg { background: #ef4444; }
+.dist-item .dot.pos {
+    background: #22c55e;
+}
+
+.dist-item .dot.neg {
+    background: #ef4444;
+}
 
 .mini-progress {
     height: 6px;
@@ -737,9 +742,18 @@
     overflow: hidden;
 }
 
-.mini-progress .fill { height: 100%; transition: width 0.4s ease; }
-.mini-progress .fill.pos { background: #22c55e; }
-.mini-progress .fill.neg { background: #ef4444; }
+.mini-progress .fill {
+    height: 100%;
+    transition: width 0.4s ease;
+}
+
+.mini-progress .fill.pos {
+    background: #22c55e;
+}
+
+.mini-progress .fill.neg {
+    background: #ef4444;
+}
 
 /* Freq Card */
 .freq-list {

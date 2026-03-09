@@ -7,7 +7,7 @@ from app.models import segment
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import List
-
+    
 from app.database import get_db
 from app.models.segment import Segment
 from app.models.segment_code import SegmentCode
@@ -78,8 +78,8 @@ def create_segment(segment: SegmentCreate, db: Session = Depends(get_db)):
 # 🔹 GET ALL SEGMENTS (With Filtering)
 @router.get("/", response_model=List[SegmentResponse])
 def get_segments(
-    document_id: int = None,
-    code_id: int = None,
+    document_id: int | None = None,
+    code_id: int | None = None,
     db: Session = Depends(get_db)
 ):
     query = db.query(Segment)

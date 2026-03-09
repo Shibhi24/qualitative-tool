@@ -164,7 +164,8 @@
 
 /* Form Elements */
 .parent-select,
-.code-input {
+.code-input,
+.code-description-input {
   width: 100%;
   padding: 8px;
   border-radius: 6px;
@@ -173,9 +174,16 @@
   /* Darker input bg */
   border: 1px solid #3f444d;
   color: #ffffff;
+  font-family: inherit;
 }
 
-.code-input::placeholder {
+.code-description-input {
+  resize: vertical;
+  min-height: 50px;
+}
+
+.code-input::placeholder,
+.code-description-input::placeholder {
   color: #64748b;
 }
 

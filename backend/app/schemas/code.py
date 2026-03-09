@@ -8,6 +8,7 @@ class CodeCreate(BaseModel):
     """Schema for creating a new thematic code."""
     name: str
     color: Optional[str] = None
+    description: Optional[str] = None
     project_id: int
     parent_id: Optional[int] = None
 
@@ -16,6 +17,7 @@ class CodeUpdate(BaseModel):
     """Schema for updating an existing thematic code."""
     name: Optional[str] = None
     color: Optional[str] = None
+    description: Optional[str] = None
     project_id: Optional[int] = None
     parent_id: Optional[int] = None
 
@@ -25,6 +27,7 @@ class CodeResponse(BaseModel):
     id: int
     name: str
     color: Optional[str]
+    description: Optional[str] = None
     project_id: int
     parent_id: Optional[int]
     created_at: datetime
@@ -37,6 +40,7 @@ class CodeTreeResponse(BaseModel):
     id: int
     name: str
     color: Optional[str]
+    description: Optional[str] = None
     project_id: int
     parent_id: Optional[int]
     children: List["CodeTreeResponse"] = Field(default_factory=list)    

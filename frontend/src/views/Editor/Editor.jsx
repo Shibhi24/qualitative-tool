@@ -104,6 +104,8 @@ function Editor() {
    */
   const loadProjectData = async (onlyCodes = false) => {
     try {
+      let currentDocId = documentId;
+
       if (!onlyCodes) {
         const docRes = await axios.get(
           `http://127.0.0.1:8000/documents/?project_id=${projectId}`
@@ -111,6 +113,7 @@ function Editor() {
         if (docRes.data.length > 0) {
           setDocumentContent(docRes.data[0].content || "");
           setDocumentId(docRes.data[0].id);
+          currentDocId = docRes.data[0].id;
         }
       }
 
@@ -120,13 +123,14 @@ function Editor() {
       setCodes(codeRes.data || []);
 
       // Fetch all segments for the project (required for Memo HUB)
-      const segRes = await axios.get(
-        `http://127.0.0.1:8000/segments/?document_id=${documentId}`
-      );
-      // NOTE: Current backend might only fetch by document_id. 
-      // If we want project-wide segments, we'd need a different endpoint.
-      // For now, document level is fine.
-      setSegments(segRes.data || []);
+      if (currentDocId) {
+        const segRes = await axios.get(
+          `http://127.0.0.1:8000/segments/?document_id=${currentDocId}`
+        );
+        setSegments(segRes.data || []);
+      } else {
+        setSegments([]);
+      }
     } catch (err) {
       console.error("Error loading project:", err);
     }
@@ -217,12 +221,12 @@ function Editor() {
     Object.entries(lexicon).forEach(([category, words]) => {
       words.forEach((word) => {
         if (!word.trim()) return;
-        
+
         // Use regex with word boundaries to avoid partial matches (e.g. "cat" in "category")
         // Escaping special characters in the word for regex safety
         const escapedWord = word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
         const regex = new RegExp(`\\b${escapedWord}\\b`, 'gi');
-        
+
         let match;
         while ((match = regex.exec(text)) !== null) {
           matches.push({
@@ -535,8 +539,8 @@ function Editor() {
                 <div className="pane-header"><span className="pane-title">File Formats</span></div>
                 <div className="pane-body">
                   <p style={{ fontSize: '0.75rem', color: '#94a3b8', margin: 0, lineHeight: 1.5 }}>
-                    <strong>Excel:</strong> Full dataset with entities.<br/>
-                    <strong>HTML:</strong> Visual report with highlights.<br/>
+                    <strong>Excel:</strong> Full dataset with entities.<br />
+                    <strong>HTML:</strong> Visual report with highlights.<br />
                     <strong>Text:</strong> Raw text summary.
                   </p>
                 </div>
@@ -583,12 +587,8 @@ function Editor() {
             />
           )}
 
-           {activeTab === "Window" && (
+          {activeTab === "Window" && (
             <div className="window-workspace">
-              <div className="workspace-header">
-                <h2>Window Management</h2>
-                <p>Manage and navigate your analytical tools and data sources.</p>
-              </div>
               <div className="window-grid">
                 {[
                   { name: "Coding", icon: "📝", desc: "Manage hierarchical codes and document highlighting." },
@@ -610,10 +610,10 @@ function Editor() {
           )}
 
           {activeTab === "Note/Memo" && (
-            <NoteMemoWorkspace 
-              projectId={projectId} 
-              codes={codes} 
-              segments={segments} 
+            <NoteMemoWorkspace
+              projectId={projectId}
+              codes={codes}
+              segments={segments}
             />
           )}
 
