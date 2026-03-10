@@ -113,66 +113,107 @@ function HighlightWorkspace({
    * 5. Sync the updated document HTML back to the backend.
    */
   const createHighlight = async () => {
-    if (!formData.name.trim() || !tooltip) return;
+  if (!formData.name.trim() || !tooltip) return;
 
-    try {
-      const parentValue = formData.type === "sub" && formData.parentId ? Number(formData.parentId) : null;
+  try {
+    const parentValue =
+      formData.type === "sub" && formData.parentId
+        ? Number(formData.parentId)
+        : null;
 
-      // Step A: Create the Code
-      const codeRes = await axios.post("http://127.0.0.1:8000/codes/", {
-        name: formData.name,
-        project_id: projectId,
-        parent_id: parentValue,
-        color: formData.color,
-        description: formData.description,
-      });
-      const newCode = codeRes.data;
+    /* Step A: Create Code */
+    const codeRes = await axios.post("http://127.0.0.1:8000/codes/", {
+      name: formData.name,
+      project_id: projectId,
+      parent_id: parentValue,
+      color: formData.color,
+      description: formData.description,
+    });
 
-      // Step B: Index Calculation
-      const preRange = tooltip.range.cloneRange();
-      preRange.selectNodeContents(editableRef.current);
-      preRange.setEnd(tooltip.range.startContainer, tooltip.range.startOffset);
-      const startIndex = preRange.toString().length;
+    const newCode = codeRes.data;
 
-      // Step C: Save Segment
-      await axios.post("http://127.0.0.1:8000/segments/", {
+    /* Step B: Calculate Start Index */
+    const preRange = tooltip.range.cloneRange();
+    preRange.selectNodeContents(editableRef.current);
+    preRange.setEnd(
+      tooltip.range.startContainer,
+      tooltip.range.startOffset
+    );
+
+    const startIndex = preRange.toString().length;
+
+    /* Step C: Save Segment */
+    const segmentRes = await axios.post(
+      "http://127.0.0.1:8000/segments/",
+      {
         document_id: documentId,
         start_index: startIndex,
         end_index: startIndex + tooltip.text.length,
         selected_text: tooltip.text,
         code_ids: [newCode.id],
-      });
-
-      // Step D: DOM Update
-      const span = document.createElement("span");
-      const isSub = formData.type === "sub";
-      span.className = `highlight-tag ${isSub ? "h-sub" : "h-main"}`;
-      span.dataset.codeId = newCode.id;
-      span.style.backgroundColor = formData.color;
-
-      try {
-        tooltip.range.surroundContents(span);
-      } catch (e) {
-        const content = tooltip.range.extractContents();
-        span.appendChild(content);
-        tooltip.range.insertNode(span);
       }
+    );
 
-      // Step E: Sync
-      const updatedHTML = editableRef.current.innerHTML;
-      setDocumentContent(updatedHTML);
-      await axios.put(`http://127.0.0.1:8000/documents/${documentId}`, { content: updatedHTML });
+    const newSegment = segmentRes.data;
 
-      setTooltip(null);
-      setFormData({ ...formData, name: "", description: "" });
-      window.getSelection().removeAllRanges();
-      if (reloadCodes) reloadCodes(true);
+    /* Step D: CREATE MEMO FROM CODE DESCRIPTION */
 
-    } catch (err) {
-      console.error("Highlighting Error:", err);
-      alert("Failed to create highlight. Check console.");
+    if (formData.description && formData.description.trim()) {
+  await axios.post("http://127.0.0.1:8000/memos/", {
+    title: formData.name,
+    content: formData.description,
+    project_id: projectId,
+    segment_id: newSegment.id,
+  });
+}
+    
+    /* Step E: Update DOM Highlight */
+    const span = document.createElement("span");
+    const isSub = formData.type === "sub";
+
+    span.className = `highlight-tag ${isSub ? "h-sub" : "h-main"}`;
+    span.dataset.codeId = newCode.id;
+    span.style.backgroundColor = formData.color;
+
+    try {
+      tooltip.range.surroundContents(span);
+    } catch (e) {
+      const content = tooltip.range.extractContents();
+      span.appendChild(content);
+      tooltip.range.insertNode(span);
     }
-  };
+
+    /* Step F: Sync Document */
+    const updatedHTML = editableRef.current.innerHTML;
+
+    setDocumentContent(updatedHTML);
+
+    await axios.put(
+      `http://127.0.0.1:8000/documents/${documentId}`,
+      {
+        content: updatedHTML,
+      }
+    );
+
+    setTooltip(null);
+
+   setFormData({
+  name: "",
+  type: "main",
+  parentId: "",
+  color: "#3b82f6",
+  description: "",
+});
+
+    window.getSelection().removeAllRanges();
+
+    if (reloadCodes) reloadCodes(true);
+
+  } catch (err) {
+    console.error("Highlighting Error:", err);
+    alert("Failed to create highlight. Check console.");
+  }
+};
 
   /**
    * Manually saves the current document HTML to the backend.

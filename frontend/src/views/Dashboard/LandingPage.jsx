@@ -18,6 +18,8 @@ function LandingPage() {
   const [projects, setProjects] = useState([]);
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [showDocs, setShowDocs] = useState(false);
+  const [isCreatingSample, setIsCreatingSample] = useState(false);
 
   // Fetches existing projects from the backend on component mount.
   useEffect(() => {
@@ -36,6 +38,20 @@ function LandingPage() {
     project.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const handleCreateSample = () => {
+    setIsCreatingSample(true);
+    axios.post("http://127.0.0.1:8000/projects/sample")
+      .then(response => {
+        setIsCreatingSample(false);
+        navigate(`/editor/${response.data.id}`);
+      })
+      .catch(error => {
+        console.error("Error creating sample:", error);
+        alert("Failed to create sample project.");
+        setIsCreatingSample(false);
+      });
+  };
+
   return (
     <div className="dashboard">
       <h2>Qualitative Tool</h2>
@@ -51,9 +67,31 @@ function LandingPage() {
           onClick={() => setIsOpen(!isOpen)}
         />
 
-        <Card title="Sample Projects" />
-        <Card title="Documentation" />
+        <Card 
+          title={isCreatingSample ? "Creating..." : "Sample Projects"} 
+          onClick={handleCreateSample} 
+        />
+        <Card title="Documentation" onClick={() => setShowDocs(true)} />
       </div>
+
+      {/* Basic Documentation Modal */}
+      {showDocs && (
+        <div className="docs-modal-overlay">
+          <div className="docs-modal-content">
+            <button className="close-docs-btn" onClick={() => setShowDocs(false)}>×</button>
+            <h3>Quick Start Guide</h3>
+            <p>Welcome to the <strong>Qualitative Analysis Tool</strong>!</p>
+            <ul>
+              <li><strong>Documents:</strong> Upload text files to begin your analysis.</li>
+              <li><strong>Codes:</strong> Highlight text in the editor and apply thematic tags (codes). You can assign custom colors and descriptions to these codes.</li>
+              <li><strong>Sentiment:</strong> Use the sentiment workspace to automatically classify the emotion (Positive/Negative/Neutral) of each sentence.</li>
+              <li><strong>Memos:</strong> Write reflective notes about your findings and link them to your overall research project.</li>
+              <li><strong>Export:</strong> Download a rich HTML presentation or an Excel spreadsheet containing all your coded segments, sentiment stats, and extracted named entities.</li>
+            </ul>
+            <p className="docs-footer">For full deployment and architecture details, refer to the <code>README.md</code> in the repository root.</p>
+          </div>
+        </div>
+      )}
 
       {isOpen && (
         <div className="recent-projects-dropdown">

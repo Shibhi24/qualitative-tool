@@ -111,6 +111,8 @@ Once the server starts successfully:
 
 * Interactive API documentation (Swagger UI) is available at
   **[http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)**
+  If you are running  backend you can also access the interactive API documentation at
+  **[http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)**
 
 This interface allows you to test backend API endpoints directly from your browser.
 

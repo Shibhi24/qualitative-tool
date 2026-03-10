@@ -4,7 +4,7 @@ Includes Named Entity Recognition (NER) and Sentiment Analysis (automated and le
 Uses spaCy for NER and TextBlob/iNLTK for sentiment processing.
 """
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 from typing import List, Optional
@@ -13,10 +13,12 @@ import spacy
 from textblob import TextBlob
 from datetime import datetime
 
+from app.models.memo import Memo
 from app.database import get_db
 from app.models.segment import Segment
 from app.models.code import Code
 from app.models.document import Document
+from app.models.project import Project
 from app.models.sentiment import SentimentLexicon, SentimentLexiconEntry, DocumentSentence
 from app.schemas import sentiment as sentiment_schemas
 import csv
@@ -389,9 +391,16 @@ def finalize_sentiment_bulk(project_id: int, data: List[BulkSentimentFinalize], 
         # Find or create sub-code for the label/custom name
         label_code = db.query(Code).filter(Code.project_id == project_id, Code.parent_id == sentiment_root.id, Code.name == code_to_use).first()
         if not label_code:
-            label_code = Code(name=code_to_use, project_id=project_id, parent_id=sentiment_root.id, description=item.memo)
+            label_code = Code(name=code_to_use,project_id=project_id,parent_id=sentiment_root.id,description=item.memo)
             db.add(label_code)
             db.flush()
+        else:
+            # Update description if provided
+           if item.memo and item.memo.strip() and not label_code.description:
+                label_code.description = item.memo
+                db.add(label_code)
+                db.flush()
+
 
         doc = db.query(Document).filter(Document.project_id == project_id).first()
         if not doc: continue
@@ -407,7 +416,18 @@ def finalize_sentiment_bulk(project_id: int, data: List[BulkSentimentFinalize], 
             manual_sentiment_override=True
         )
         db.add(segment)
+        db.flush()  # get segment.id
         segment.codes.append(label_code)
+        if item.memo:
+            memo_entry = Memo(
+                title=f"Sentiment Note: {code_to_use}",
+                content=item.memo,
+                project_id=project_id,
+                segment_id=segment.id
+            )
+            db.add(memo_entry)
+            db.flush()
+
         segments_added += 1
 
     db.commit()
@@ -541,3 +561,103 @@ def analyze_sentiment(document_id: int, db: Session = Depends(get_db)):
 @router.get("/code-frequency/{project_id}")
 def code_frequency(project_id: int, db: Session = Depends(get_db)):
     return get_code_frequency_by_project(project_id, db)
+
+
+# ===============================
+# 🔹 NEW: BULK PROJECT SENTIMENT ANALYSIS
+# ===============================
+
+@router.post("/sentiment/analyze-project/{project_id}")
+def analyze_project_sentiment(project_id: int, db: Session = Depends(get_db)):
+    """
+    Run sentiment analysis on all documents in a project
+    """
+    from textblob import TextBlob
+    
+    documents = db.query(Document).filter(Document.project_id == project_id).all()
+    
+    if not documents:
+        return {"message": "No documents found in this project", "documents_processed": 0}
+    
+    results = []
+    
+    for doc in documents:
+        # Check if already analyzed
+        existing = db.query(DocumentSentence).filter(DocumentSentence.document_id == doc.id).first()
+        if existing:
+            # Option 1: Skip if already analyzed
+            results.append({
+                "document_id": doc.id,
+                "title": doc.title,
+                "status": "already_analyzed",
+                "sentences_count": db.query(DocumentSentence).filter(DocumentSentence.document_id == doc.id).count()
+            })
+            continue
+            
+        if not doc.content:
+            results.append({
+                "document_id": doc.id,
+                "title": doc.title,
+                "status": "no_content",
+                "sentences_created": 0
+            })
+            continue
+        
+        # Split into sentences
+        sentences = doc.content.split('.')
+        current_offset = 0
+        created = 0
+        
+        for sentence_text in sentences:
+            sentence_text = sentence_text.strip()
+            if not sentence_text:
+                current_offset += 1
+                continue
+            
+            start_idx = doc.content.find(sentence_text, current_offset)
+            if start_idx == -1:
+                continue
+            end_idx = start_idx + len(sentence_text)
+            current_offset = end_idx
+            
+            # Analyze sentiment
+            blob = TextBlob(sentence_text)
+            polarity = blob.sentiment.polarity
+            
+            # Determine label
+            if polarity > 0.5:
+                label = "Very Positive"
+            elif polarity > 0:
+                label = "Positive"
+            elif polarity == 0:
+                label = "Neutral"
+            elif polarity > -0.5:
+                label = "Negative"
+            else:
+                label = "Very Negative"
+            
+            # Create sentence record
+            sentence = DocumentSentence(
+                document_id=doc.id,
+                text=sentence_text,
+                start_index=start_idx,
+                end_index=end_idx,
+                auto_sentiment_score=polarity,
+                auto_sentiment_label=label,
+                auto_sentiment_intensity=min(1.0, abs(polarity) * 1.5 + blob.sentiment.subjectivity * 0.5)
+            )
+            db.add(sentence)
+            created += 1
+        
+        db.commit()
+        results.append({
+            "document_id": doc.id,
+            "title": doc.title,
+            "status": "analyzed",
+            "sentences_created": created
+        })
+    
+    return {
+        "message": f"Processed {len(documents)} documents",
+        "results": results
+    }

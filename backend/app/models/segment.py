@@ -14,7 +14,7 @@ class Segment(Base):
     document_id = Column(Integer, ForeignKey("documents.id"))
     start_index = Column(Integer)
     end_index = Column(Integer)
-    selected_text = Column(String(500))
+    selected_text = Column(String(2000))
     sentiment_label = Column(String(50), nullable=True) # e.g. "Positive"
     sentiment_score = Column(Float, nullable=True) # -1.0 to 1.0 scale
     memo = Column(String(1000), nullable=True) # v2: Segment memo

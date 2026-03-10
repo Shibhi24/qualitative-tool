@@ -4,6 +4,7 @@ Handles creating, retrieving, and deleting segments (coded text portions).
 """
 
 from app.models import segment
+from app.schemas.memo import Memo
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import List
@@ -24,31 +25,21 @@ router = APIRouter(
 #  CREATE SEGMENT WITH VALIDATION (Many-to-Many Version)
 @router.post("/", response_model=SegmentResponse)
 def create_segment(segment: SegmentCreate, db: Session = Depends(get_db)):
-    """
-    Creates a new segment and optionally links it to multiple codes.
-    Validates that the selected text exists within the document boundaries.
-    """
-    # ✅ Validate document exists
+
     document = db.query(Document).filter(Document.id == segment.document_id).first()
     if not document:
         raise HTTPException(status_code=404, detail="Document not found")
 
-    # ✅ Validate selected text exists inside document
     if segment.selected_text not in document.content:
         raise HTTPException(
             status_code=400,
             detail="Selected text not found in document"
         )
 
-    # ✅ Auto-calculate indexes
-    start_index = segment.start_index
-    end_index = segment.end_index
-
-    # ✅ Create segment (NO code_id here)
     new_segment = Segment(
         document_id=segment.document_id,
-        start_index=start_index,
-        end_index=end_index,
+        start_index=segment.start_index,
+        end_index=segment.end_index,
         selected_text=segment.selected_text
     )
 
@@ -56,7 +47,7 @@ def create_segment(segment: SegmentCreate, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(new_segment)
 
-    # ✅ Validate codes + Create many-to-many mappings
+    # 🔹 Create many-to-many mappings + auto memo
     for code_id in segment.code_ids:
 
         code = db.query(Code).filter(Code.id == code_id).first()
@@ -70,6 +61,16 @@ def create_segment(segment: SegmentCreate, db: Session = Depends(get_db)):
 
         db.add(mapping)
 
+        # 🔹 AUTO CREATE MEMO FROM CODE DESCRIPTION
+        if code.description:
+            memo = Memo(
+                title=code.name,
+                content=code.description,
+                project_id=document.project_id,
+                segment_id=new_segment.id
+            )
+            db.add(memo)
+
     db.commit()
 
     return new_segment
@@ -79,6 +80,7 @@ def create_segment(segment: SegmentCreate, db: Session = Depends(get_db)):
 @router.get("/", response_model=List[SegmentResponse])
 def get_segments(
     document_id: int | None = None,
+    project_id: int | None = None,
     code_id: int | None = None,
     db: Session = Depends(get_db)
 ):
@@ -86,6 +88,9 @@ def get_segments(
 
     if document_id is not None:
         query = query.filter(Segment.document_id == document_id)
+
+    if project_id is not None:
+        query = query.join(Document).filter(Document.project_id == project_id)
 
     if code_id is not None:
         query = query.join(SegmentCode).filter(SegmentCode.code_id == code_id)

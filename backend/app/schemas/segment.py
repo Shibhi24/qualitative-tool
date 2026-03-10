@@ -13,6 +13,9 @@ class SegmentCreate(BaseModel):
     end_index: int
     selected_text: str
     code_ids: List[int]
+    memo: Optional[str] = None
+    sentiment_label: Optional[str] = None
+    sentiment_score: Optional[float] = None
 
 
 class SegmentUpdate(BaseModel):
@@ -22,6 +25,9 @@ class SegmentUpdate(BaseModel):
     end_index: Optional[int] = None
     selected_text: Optional[str] = None
     code_ids: Optional[List[int]] = None
+    memo: Optional[str] = None
+    sentiment_label: Optional[str] = None
+    sentiment_score: Optional[float] = None
 
 
 class SegmentResponse(BaseModel):
@@ -31,6 +37,9 @@ class SegmentResponse(BaseModel):
     start_index: int
     end_index: int
     selected_text: str
+    memo: Optional[str] = None
+    sentiment_label: Optional[str] = None
+    sentiment_score: Optional[float] = None
 
     class Config:
         from_attributes = True  

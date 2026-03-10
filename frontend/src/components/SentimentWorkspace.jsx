@@ -258,7 +258,12 @@ function SentimentWorkspace({
                 memo: r.memo
             }));
 
-            await axios.post(`http://127.0.0.1:8000/analysis/sentiment/finalize-bulk/${projectId}`, payload);
+            await axios.post(
+  `http://127.0.0.1:8000/analysis/sentiment/finalize-bulk/${projectId}`,
+  sentimentResults
+);
+loadMemos();
+
             alert("Sentiment codes finalized successfully");
 
         } catch (error) {

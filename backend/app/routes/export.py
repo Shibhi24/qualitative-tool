@@ -6,13 +6,16 @@ import spacy
 from spacy import displacy
 import os
 import tempfile
-from typing import List
+from typing import List, Dict, Any, cast, Optional
+import sqlalchemy
+from sqlalchemy import func
 
 from app.database import get_db
 from app.models.project import Project
 from app.models.document import Document
 from app.models.segment import Segment
 from app.models.code import Code
+from app.models.sentiment import DocumentSentence
 from app.models.memo import Memo as MemoModel
 
 router = APIRouter(prefix="/export", tags=["Export"])
@@ -85,8 +88,6 @@ def export_excel_report(project_id: int, db: Session = Depends(get_db)):
     df_entities = pd.DataFrame(entity_data)
 
     # 5. Sentiment Distribution Data
-    from app.models.sentiment import DocumentSentence
-    from sqlalchemy import func
     
     sent_dist = (
         db.query(DocumentSentence.auto_sentiment_label, func.count(DocumentSentence.id))
@@ -98,10 +99,9 @@ def export_excel_report(project_id: int, db: Session = Depends(get_db)):
     df_sent_dist = pd.DataFrame([{"Label": r[0] or "Neutral", "Count": r[1]} for r in sent_dist])
 
     # 6. Code Frequency Data
-    from app.models.segment import Segment
     code_freq = (
         db.query(Code.name, func.count(Segment.id).label("count"))
-        .join(Segment, Segment.codes)
+        .join(Code.segments)
         .join(Document, Segment.document_id == Document.id)
         .filter(Document.project_id == project_id)
         .group_by(Code.name)
@@ -109,7 +109,7 @@ def export_excel_report(project_id: int, db: Session = Depends(get_db)):
     )
     df_code_freq = pd.DataFrame([{"Code": r[0], "Frequency": r[1]} for r in code_freq])
 
-    # 7. Thematic Crosstab Data
+    # 7. Thematic Crosstab Data (Codes)
     sentiment_labels = ["Very Positive", "Positive", "Neutral", "Negative", "Very Negative"]
     codes = db.query(Code).filter(Code.project_id == project_id).all()
     crosstab_data = []
@@ -128,17 +128,67 @@ def export_excel_report(project_id: int, db: Session = Depends(get_db)):
         crosstab_data.append(row)
     df_crosstab = pd.DataFrame(crosstab_data)
 
+    # 8. Entity Sentiment Crosstab (Entities)
+    
+    # Add explicit type hint for query result
+    sentences = db.query(DocumentSentence).join(Document).filter(Document.project_id == project_id).all()
+    sentences_list: List[DocumentSentence] = cast(List[DocumentSentence], sentences)
+    
+    # We'll use a dictionary where key is Entity Name and value is yet another dict of counts
+    ent_sentiment_counts: Dict[str, Dict[str, Any]] = {}
+
+    for sentence in sentences_list:
+        if not sentence.auto_sentiment_label:
+            continue
+        
+        # Casting the loop variable explicitly for Pyre
+        s_obj = cast(DocumentSentence, sentence)
+        
+        # Extract entities from this specific sentence
+        # cast sentence.text to string to be safe
+        sent_text_str: str = str(s_obj.text)
+        doc_span = nlp(sent_text_str)
+        
+        for ent in doc_span.ents:
+            # Filter out noisy entities
+            if ent.label_ not in ["CARDINAL", "ORDINAL", "DATE", "TIME", "PERCENT", "MONEY", "QUANTITY"]:
+                ent_name: str = str(ent.text).strip()
+                if not ent_name: continue
+                
+                if ent_name not in ent_sentiment_counts:
+                    ent_sentiment_counts[ent_name] = {
+                        "Entity Name": ent_name,
+                        "Entity Type": str(ent.label_),
+                        "Very Positive": 0, "Positive": 0, "Neutral": 0, "Negative": 0, "Very Negative": 0
+                    }
+                
+                label: str = str(s_obj.auto_sentiment_label)
+                current_counts: Dict[str, Any] = ent_sentiment_counts[ent_name]
+                if label in ["Very Positive", "Positive", "Neutral", "Negative", "Very Negative"]:
+                    current_val = current_counts.get(label, 0)
+                    current_counts[label] = int(current_val) + 1
+                else:
+                    current_val = current_counts.get("Neutral", 0)
+                    current_counts["Neutral"] = int(current_val) + 1
+
+    df_entity_crosstab = pd.DataFrame(list(ent_sentiment_counts.values()))
+
     temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".xlsx")
-    with pd.ExcelWriter(temp_file.name, engine="xlsxwriter") as writer:
+    temp_path = temp_file.name
+    temp_file.close() # Close immediately to prevent Windows file locking issues
+
+    with pd.ExcelWriter(temp_path, engine="xlsxwriter") as writer:
         df_segments.to_excel(writer, sheet_name="Segments", index=False)
         df_codes.to_excel(writer, sheet_name="Codes", index=False)
         df_memos.to_excel(writer, sheet_name="Memos", index=False)
         df_entities.to_excel(writer, sheet_name="Entities", index=False)
         df_sent_dist.to_excel(writer, sheet_name="Sentiment_Stats", index=False)
         df_code_freq.to_excel(writer, sheet_name="Code_Frequency", index=False)
-        df_crosstab.to_excel(writer, sheet_name="Thematic_Crosstab", index=False)
+        df_crosstab.to_excel(writer, sheet_name="Code_Crosstab", index=False)
+        if not df_entity_crosstab.empty:
+            df_entity_crosstab.to_excel(writer, sheet_name="Entity_Crosstab", index=False)
 
-    return FileResponse(temp_file.name, filename=f"Project_{project.name}_Report.xlsx")
+    return FileResponse(temp_path, filename=f"Project_{project.name}_Report.xlsx")
 
 @router.get("/html/{project_id}")
 def export_html_report(project_id: int, db: Session = Depends(get_db)):
@@ -146,25 +196,23 @@ def export_html_report(project_id: int, db: Session = Depends(get_db)):
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")
 
-    documents = db.query(Document).filter(Document.project_id == project_id).all()
-
-    from app.models.sentiment import DocumentSentence
-    from sqlalchemy import func
+    documents: List[Document] = db.query(Document).filter(Document.project_id == project_id).all()
 
     # Calculate overall project sentiment distribution
-    sent_dist = (
+    sent_dist_raw = (
         db.query(DocumentSentence.auto_sentiment_label, func.count(DocumentSentence.id))
         .join(Document, DocumentSentence.document_id == Document.id)
         .filter(Document.project_id == project_id)
         .group_by(DocumentSentence.auto_sentiment_label)
         .all()
     )
+    sent_dist: List[Any] = cast(List[Any], sent_dist_raw)
     
     total_sentences = sum([r[1] for r in sent_dist])
     sent_counts = {r[0] or "Neutral": r[1] for r in sent_dist}
     
     # Sentiment colors mapping
-    sentiment_colors = {
+    sentiment_colors: Dict[str, str] = {
         "Very Positive": "#10b981", # Green
         "Positive": "#34d399",     # Light green
         "Neutral": "#9ca3af",      # Gray
@@ -362,8 +410,8 @@ def export_html_report(project_id: int, db: Session = Depends(get_db)):
                     <h3 class="section-title">Named Entities Found</h3>
                     <div class="entities-container">
         """
-        clean_text = strip_html(doc.content)
-        spacy_doc = nlp(str(clean_text)[:10000]) # Sample for visualization
+        clean_text = str(strip_html(doc.content))
+        spacy_doc = nlp(clean_text[:10000]) # Sample for visualization
         
         # Use displacy to generate colored entity tags
         # page=False returns just the HTML snippet without <html><body> wrappers
@@ -386,8 +434,9 @@ def export_html_report(project_id: int, db: Session = Depends(get_db)):
         if not sentences:
             html_content += "<p style='color: var(--text-muted); font-style: italic;'>No sentiment analysis data available for this document.</p>"
         else:
+            s: DocumentSentence
             for s in sentences:
-                label = s.auto_sentiment_label or "Neutral"
+                label: str = str(s.auto_sentiment_label or "Neutral")
                 color = sentiment_colors.get(label, "#9ca3af")
                 html_content += f"""
                         <div class="sentiment-sentence" style="border-left-color: {color}">
@@ -409,10 +458,11 @@ def export_html_report(project_id: int, db: Session = Depends(get_db)):
     """
     
     temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".html", mode='w', encoding='utf-8')
+    temp_path = temp_file.name
     temp_file.write(html_content)
     temp_file.close()
 
-    return FileResponse(temp_file.name, filename=f"Project_{project.name}_Summary.html")
+    return FileResponse(temp_path, filename=f"Project_{project.name}_Summary.html")
 
 @router.get("/text/{project_id}")
 def export_text_summary(project_id: int, db: Session = Depends(get_db)):
@@ -430,7 +480,8 @@ def export_text_summary(project_id: int, db: Session = Depends(get_db)):
         text_content += doc.content + "\n\n"
 
     temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".txt", mode='w', encoding='utf-8')
+    temp_path = temp_file.name
     temp_file.write(text_content)
     temp_file.close()
 
-    return FileResponse(temp_file.name, filename=f"Project_{project.name}_FullText.txt")
+    return FileResponse(temp_path, filename=f"Project_{project.name}_FullText.txt")

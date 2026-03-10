@@ -5,11 +5,27 @@ import "./ExportWorkspace.css";
 function ExportWorkspace({ projectId }) {
   const [isExporting, setIsExporting] = useState(false);
   const [activeExport, setActiveExport] = useState(null);
+  const [isPreparing, setIsPreparing] = useState(false);
 
   const handleDownload = async (format) => {
     setIsExporting(true);
     setActiveExport(format);
+    
     try {
+      // For HTML format, FIRST run sentiment analysis to ensure data exists
+      if (format === 'html') {
+        try {
+          console.log("Running sentiment analysis for project", projectId);
+          await axios.post(`http://127.0.0.1:8000/analysis/sentiment/analyze-project/${projectId}`);
+          console.log("Sentiment analysis completed successfully");
+        } catch (analysisErr) {
+          // If it fails, maybe it's already analyzed or no documents
+          console.log("Note: Analysis may have already been run:", analysisErr);
+          // Continue with download anyway
+        }
+      }
+      
+      // THEN download the report
       const endpoints = {
         excel: `http://127.0.0.1:8000/export/excel/${projectId}`,
         html: `http://127.0.0.1:8000/export/html/${projectId}`,
@@ -43,6 +59,20 @@ function ExportWorkspace({ projectId }) {
     }
   };
 
+  // Optional: Add a separate button to prepare the report
+  const prepareReport = async () => {
+    setIsPreparing(true);
+    try {
+      await axios.post(`http://127.0.0.1:8000/analysis/sentiment/analyze-project/${projectId}`);
+      alert("Report prepared! Sentiment analysis is now complete. You can download the HTML report.");
+    } catch (err) {
+      console.error("Preparation failed:", err);
+      alert("Failed to prepare report. The project might have no documents.");
+    } finally {
+      setIsPreparing(false);
+    }
+  };
+
   const exportOptions = [
     {
       id: "excel",
@@ -72,6 +102,30 @@ function ExportWorkspace({ projectId }) {
       <div className="export-header">
         <h1>Export & Data Portability</h1>
         <p>Finalize your research by moving your data into standard formats for presentation or further analysis.</p>
+      </div>
+
+      {/* Optional: Add a prepare button */}
+      <div style={{ marginBottom: "20px" }}>
+        <button
+          onClick={prepareReport}
+          disabled={isPreparing}
+          style={{
+            backgroundColor: "#059669",
+            color: "white",
+            padding: "12px 24px",
+            border: "none",
+            borderRadius: "8px",
+            fontSize: "16px",
+            fontWeight: "600",
+            cursor: "pointer",
+            width: "100%"
+          }}
+        >
+          {isPreparing ? "⏳ Preparing Report..." : "🔄 Prepare Report with Sentiment Data"}
+        </button>
+        <p style={{ fontSize: "12px", color: "#666", marginTop: "5px", textAlign: "center" }}>
+          Run this first to ensure sentiment data is included in your HTML export
+        </p>
       </div>
 
       <div className="export-grid">

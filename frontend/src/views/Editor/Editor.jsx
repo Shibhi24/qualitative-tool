@@ -123,13 +123,11 @@ function Editor() {
       setCodes(codeRes.data || []);
 
       // Fetch all segments for the project (required for Memo HUB)
-      if (currentDocId) {
+      if (projectId) {
         const segRes = await axios.get(
-          `http://127.0.0.1:8000/segments/?document_id=${currentDocId}`
+          `http://127.0.0.1:8000/segments/?project_id=${projectId}`
         );
         setSegments(segRes.data || []);
-      } else {
-        setSegments([]);
       }
     } catch (err) {
       console.error("Error loading project:", err);
