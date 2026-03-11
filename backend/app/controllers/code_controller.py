@@ -1,3 +1,8 @@
+"""
+Controller for Code management operations.
+Handles the business logic for creating, retrieving, updating, and deleting
+hierarchical codes within a project.
+"""
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from typing import List, Optional
@@ -8,6 +13,10 @@ from app.schemas.code import CodeCreate, CodeUpdate
 
 # ✅ CREATE CODE (Supports Parent-Child)
 def create_code(db: Session, code: CodeCreate):
+    """
+    Creates a new thematic code in the database.
+    Validates parent-child relationships if a parent_id is provided.
+    """
 
     # 🔎 If creating a child code
     if code.parent_id is not None:

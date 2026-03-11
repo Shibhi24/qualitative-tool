@@ -10,6 +10,7 @@ import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import Card from "../../components/Card";
+import ExternalVideo from "../../components/ExternalVideo"; // Import our video component
 import "./LandingPage.css";
 
 function LandingPage() {
@@ -80,15 +81,22 @@ function LandingPage() {
           <div className="docs-modal-content">
             <button className="close-docs-btn" onClick={() => setShowDocs(false)}>×</button>
             <h3>Quick Start Guide</h3>
+            <h3>Tutorial Video</h3>
+            {/* Local Video Section */}
+            <div className="docs-video-container">
+              <ExternalVideo />
+            </div>
+            
+
             <p>Welcome to the <strong>Qualitative Analysis Tool</strong>!</p>
             <ul>
               <li><strong>Documents:</strong> Upload text files to begin your analysis.</li>
-              <li><strong>Codes:</strong> Highlight text in the editor and apply thematic tags (codes). You can assign custom colors and descriptions to these codes.</li>
-              <li><strong>Sentiment:</strong> Use the sentiment workspace to automatically classify the emotion (Positive/Negative/Neutral) of each sentence.</li>
-              <li><strong>Memos:</strong> Write reflective notes about your findings and link them to your overall research project.</li>
-              <li><strong>Export:</strong> Download a rich HTML presentation or an Excel spreadsheet containing all your coded segments, sentiment stats, and extracted named entities.</li>
+              <li><strong>Codes:</strong> Highlight text in the editor and apply thematic tags (codes).</li>
+              <li><strong>Sentiment:</strong> Automatically classify emotions (Positive/Negative/Neutral).</li>
+              <li><strong>Memos:</strong> Write reflective notes and link them to your project.</li>
+              <li><strong>Export:</strong> Download HTML presentations or Excel spreadsheets.</li>
             </ul>
-            <p className="docs-footer">For full deployment and architecture details, refer to the <code>README.md</code> in the repository root.</p>
+            <p className="docs-footer">For full deployment details, refer to the <code>README.md</code> in the repository root.</p>
           </div>
         </div>
       )}

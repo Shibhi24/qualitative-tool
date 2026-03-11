@@ -1,3 +1,7 @@
+"""
+Pydantic Schemas for Sentiment Analysis.
+Defines the data structures used for classifying text sentiment, managing lexicons, and returning analysis results.
+"""
 from pydantic import BaseModel
 from typing import List, Optional
 from datetime import datetime

@@ -241,9 +241,18 @@ function ProjectSetup() {
             onChange={(e) => setLanguage(e.target.value)}
           >
             <option>English</option>
-            <option>Spanish</option>
-            <option>French</option>
-            <option>German</option>
+            <option>Tamil</option>
+            <option>Hindi</option>
+            <option>Kanada</option>
+            <option>Malayalam</option>
+            <option>Telugu</option>
+            <option>Bengali</option>
+            <option>Marathi</option>
+            <option>Gujarati</option>
+            <option>Punjabi</option>
+
+            
+
           </select>
         </div>
 

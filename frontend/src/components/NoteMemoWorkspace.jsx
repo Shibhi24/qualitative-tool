@@ -1,20 +1,33 @@
+/**
+ * NoteMemoWorkspace Component (Function-Based)
+ * 
+ * Provides a dedicated workspace for researchers to view, create, and manage analytical memos.
+ * Memos can be associated with the overall project or attached to specific coded text segments.
+ *
+ * Props:
+ *   - projectId : ID of the current active research project
+ *   - codes     : Array of code objects (used to extract code-level memos/descriptions)
+ */
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "./NoteMemoWorkspace.css";
 
 function NoteMemoWorkspace({ projectId, codes = [] }) {
 
-  const [memos, setMemos] = useState([]);
-  const [activeTab, setActiveTab] = useState("Project");
-  const [newMemoTitle, setNewMemoTitle] = useState("");
-  const [newMemoContent, setNewMemoContent] = useState("");
-  const [isSaving, setIsSaving] = useState(false);
-  const [codeMemos, setCodeMemos] = useState([]);
+  // --- State Management ---
+  const [memos, setMemos] = useState([]); // List of all memos fetched from backend
+  const [activeTab, setActiveTab] = useState("Project"); // Controls which tab is visible (Project/Segments)
+  const [newMemoTitle, setNewMemoTitle] = useState(""); // Input state for a new project memo title
+  const [newMemoContent, setNewMemoContent] = useState(""); // Input state for a new project memo content
+  const [isSaving, setIsSaving] = useState(false); // Loading state indicator when saving to API
+  const [codeMemos, setCodeMemos] = useState([]); // Filtered list of codes that contain descriptions
 
+  // Fetch memos when the component mounts or when the active project changes
   useEffect(() => {
     if (projectId) loadMemos();
   }, [projectId]);
 
+  // Extract codes that have descriptions to display as "Code Memos"
   useEffect(() => {
     if (codes && codes.length > 0) {
       setCodeMemos(codes.filter(c => c.description));
@@ -23,6 +36,9 @@ function NoteMemoWorkspace({ projectId, codes = [] }) {
     }
   }, [codes]);
 
+  /**
+   * Fetches the complete list of memos for the current project from the backend API.
+   */
   const loadMemos = async () => {
     try {
       const res = await axios.get(`http://127.0.0.1:8000/memos/${projectId}`);
@@ -32,6 +48,12 @@ function NoteMemoWorkspace({ projectId, codes = [] }) {
     }
   };
 
+  /**
+   * Submits a newly created memo to the backend database.
+   * Can create a general project memo or a segment-specific memo.
+   * 
+   * @param {number|null} segmentId - Optional ID linking the memo to a specific text segment
+   */
   const handleSaveMemo = async (segmentId = null) => {
     if (!newMemoTitle || !newMemoContent) return;
 
@@ -45,6 +67,7 @@ function NoteMemoWorkspace({ projectId, codes = [] }) {
         segment_id: segmentId,
       });
 
+      // Reset form and refresh list upon successful save
       setNewMemoTitle("");
       setNewMemoContent("");
       loadMemos();
@@ -56,6 +79,11 @@ function NoteMemoWorkspace({ projectId, codes = [] }) {
     }
   };
 
+  /**
+   * Deletes a specific memo from the database and refreshes the memo list.
+   * 
+   * @param {number} id - The ID of the memo to delete
+   */
   const handleDeleteMemo = async (id) => {
     try {
       await axios.delete(`http://127.0.0.1:8000/memos/${id}`);

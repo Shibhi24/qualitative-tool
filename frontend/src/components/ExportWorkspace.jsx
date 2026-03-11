@@ -1,41 +1,60 @@
+/**
+ * ExportWorkspace Component
+ * 
+ * Provides the user interface for exporting project data into various formats (Excel, HTML, Text).
+ * Automatically triggers background sentiment analysis if required before exporting.
+ *
+ * Props:
+ *   - projectId : ID of the current active research project
+ */
 import React, { useState } from "react";
 import axios from "axios";
 import "./ExportWorkspace.css";
 
 function ExportWorkspace({ projectId }) {
-  const [isExporting, setIsExporting] = useState(false);
-  const [activeExport, setActiveExport] = useState(null);
-  const [isPreparing, setIsPreparing] = useState(false);
+  // --- State Management ---
+  const [isExporting, setIsExporting] = useState(false); // Tracks if an export download is currently in progress
+  const [activeExport, setActiveExport] = useState(null); // Stores the ID of the format currently being exported
+  const [isPreparing, setIsPreparing] = useState(false); // Tracks if the preliminary sentiment analysis is running
 
+  /**
+   * Handles the download process for a specified export format.
+   * If exporting to HTML, it attempts to run sentiment analysis first to ensure
+   * the visual charts have data.
+   * 
+   * @param {string} format - The requested export format ('excel', 'html', 'text')
+   */
   const handleDownload = async (format) => {
     setIsExporting(true);
     setActiveExport(format);
     
     try {
-      // For HTML format, FIRST run sentiment analysis to ensure data exists
+      // Step 1: For HTML format, FIRST run sentiment analysis to ensure visualization data exists
       if (format === 'html') {
         try {
           console.log("Running sentiment analysis for project", projectId);
           await axios.post(`http://127.0.0.1:8000/analysis/sentiment/analyze-project/${projectId}`);
           console.log("Sentiment analysis completed successfully");
         } catch (analysisErr) {
-          // If it fails, maybe it's already analyzed or no documents
+          // If it fails, maybe it's already analyzed or no documents exist
           console.log("Note: Analysis may have already been run:", analysisErr);
           // Continue with download anyway
         }
       }
       
-      // THEN download the report
+      // Step 2: Request the actual report file from the backend
       const endpoints = {
         excel: `http://127.0.0.1:8000/export/excel/${projectId}`,
         html: `http://127.0.0.1:8000/export/html/${projectId}`,
         text: `http://127.0.0.1:8000/export/text/${projectId}`,
       };
 
+      // Ensure the response is treated as a Blob for file downloading
       const response = await axios.get(endpoints[format], {
         responseType: "blob",
       });
 
+      // Step 3: Create a temporary URL and trigger the browser download
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement("a");
       link.href = url;
@@ -49,6 +68,8 @@ function ExportWorkspace({ projectId }) {
       link.setAttribute("download", filenames[format]);
       document.body.appendChild(link);
       link.click();
+      
+      // Cleanup
       link.remove();
     } catch (err) {
       console.error("Export failed:", err);
@@ -59,7 +80,10 @@ function ExportWorkspace({ projectId }) {
     }
   };
 
-  // Optional: Add a separate button to prepare the report
+  /**
+   * Manually triggers a full sentiment analysis on all documents in the project.
+   * Can be used to ensure data is ready before attempting an export.
+   */
   const prepareReport = async () => {
     setIsPreparing(true);
     try {

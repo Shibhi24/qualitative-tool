@@ -1,3 +1,7 @@
+"""
+API routes for Memo management.
+Handles creating, retrieving, and deleting project and segment-level analytical memos.
+"""
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session, joinedload
 from typing import List
@@ -13,9 +17,12 @@ router = APIRouter(
 )
 
 
-# Create Memo
 @router.post("/", response_model=memo_schemas.Memo)
 def create_memo(memo: memo_schemas.MemoCreate, db: Session = Depends(get_db)):
+    """
+    Creates a new memo in the database.
+    Can be a general project memo or linked to a specific text segment.
+    """
     db_memo = MemoModel(**memo.model_dump())
 
     db.add(db_memo)

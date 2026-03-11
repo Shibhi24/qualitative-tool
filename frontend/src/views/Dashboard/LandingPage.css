@@ -138,30 +138,24 @@
    RESPONSIVE
 ========================= */
 @media (max-width: 768px) {
-
   .dashboard {
     padding: 40px 20px;
   }
-
   .dashboard h2 {
     font-size: 1.8rem;
     margin-bottom: 30px;
   }
-
   .card-grid {
     grid-template-columns: 1fr;
     gap: 16px;
   }
-
   .card-grid .card {
     min-height: 80px;
     padding: 16px;
   }
-
   .recent-projects-dropdown {
     padding: 18px;
   }
-
   .project-item {
     padding: 14px;
   }
@@ -185,12 +179,17 @@
 .docs-modal-content {
   background: #ffffff;
   width: 100%;
-  max-width: 600px;
+  max-width: 650px;
   border-radius: 16px;
   padding: 40px;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
   position: relative;
   animation: modalFadeIn 0.3s ease-out;
+
+  /* SCROLLABLE FIX */
+  max-height: 85vh;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 @keyframes modalFadeIn {
@@ -202,13 +201,15 @@
   position: absolute;
   top: 20px;
   right: 20px;
-  background: none;
+  background: #fff;
+  border-radius: 50%;
   border: none;
   font-size: 28px;
   color: #64748b;
   cursor: pointer;
   line-height: 1;
   transition: color 0.2s ease;
+  z-index: 10;
 }
 
 .close-docs-btn:hover {
@@ -252,4 +253,44 @@
   color: #64748b !important;
   border-top: 1px solid #e2e8f0;
   padding-top: 15px;
+}
+
+/* =========================
+   VIDEO PLAYER STYLING
+========================= */
+.docs-video-container {
+  width: 100%;
+  aspect-ratio: 16 / 9; 
+  background: #000;
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 25px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+
+
+.docs-video-container > div {
+  position: absolute !important;
+  top: 0;
+  left: 0;
+}
+
+/* CUSTOM MODAL SCROLLBAR */
+.docs-modal-content::-webkit-scrollbar {
+  width: 8px;
+}
+.docs-modal-content::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+.docs-modal-content::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
+}
+.docs-modal-content::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
 }
